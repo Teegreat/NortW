@@ -7,8 +7,6 @@ import {
   streamUserId,
 } from "../lib/stream.js";
 import { getEnv } from "../lib/env.js";
-import { error } from "console";
-import { ne } from "drizzle-orm";
 
 const env = getEnv();
 
