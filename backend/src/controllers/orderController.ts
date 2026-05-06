@@ -4,7 +4,7 @@ import { getLocalUser } from "../lib/users";
 import { isStaff } from "../lib/roles";
 import { db } from "../db";
 import { orderItems, orders, products, users } from "../db/schema";
-import { asc, desc, eq, inArray, or } from "drizzle-orm";
+import { asc, desc, eq, inArray} from "drizzle-orm";
 import {
   getStreamChatServer,
   streamChatDisplayName,
