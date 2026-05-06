@@ -3,6 +3,6 @@ import { createStreamToken } from "../controllers/streamController";
 
 const router = Router()
 
-router.post("/", createStreamToken)
+router.post
 
 export default router
