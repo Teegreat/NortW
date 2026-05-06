@@ -1,4 +1,4 @@
-import type { Request, Response, NextFunction } from "express";
+import type { Request, Response } from "express";
 import { getEnv } from "../lib/env";
 import { checkoutSessions, orderItems, orders } from "../db/schema";
 import { eq } from "drizzle-orm";
