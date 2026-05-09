@@ -6,7 +6,7 @@ export const useCart = create(
     (set, get) => ({
       items: [],
 
-      addItem(product, qty = 1) {
+      addItem(productId, qty = 1) {
         const items = [...get().items];
         const i = items.findIndex((item) => item.productId === productId);
 

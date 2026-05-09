@@ -9,11 +9,11 @@ import * as Sentry from "@sentry/react";
 import { BrowserRouter } from "react-router";
 import { SentryErrorFallback } from "./components/SentryErrorFallback.jsx";
 import { SentryUserSync } from "./components/SentryUserSync.jsx";
-import Layout from "./components/Layout.jsx";
 
 const queryClient = new QueryClient();
 
 const apiBase = import.meta.env.VITE_API_URL ?? "";
+const sentryEnabled = import.meta.env.PROD && Boolean(import.meta.env.VITE_SENTRY_DSN);
 
 const tracePropagationTargets =
   apiBase.length > 0
@@ -22,34 +22,40 @@ const tracePropagationTargets =
       ? [window.location.origin]
       : [];
 
-Sentry.init({
-  dsn: import.meta.env.VITE_SENTRY_DSN,
-  environment: import.meta.env.MODE,
-  sendDefaultPii: true,
-  integrations: [
-    Sentry.browserTracingIntegration(),
-    Sentry.replayIntegration({
-      maskAllText: false,
-      maskAllInputs: false,
-      blockAllMedia: false,
-    }),
-  ],
-  tracesSampleRate: 1.0,
-  tracePropagationTargets: tracePropagationTargets,
-  replaysSessionSampleRate: 1.0,
-  replaysOnErrorSampleRate: 1.0,
-  enableLogs: true,
-});
+if (sentryEnabled) {
+  Sentry.init({
+    dsn: import.meta.env.VITE_SENTRY_DSN,
+    environment: import.meta.env.MODE,
+    sendDefaultPii: true,
+    integrations: [
+      Sentry.browserTracingIntegration(),
+      Sentry.replayIntegration({
+        maskAllText: false,
+        maskAllInputs: false,
+        blockAllMedia: false,
+      }),
+    ],
+    tracesSampleRate: 1.0,
+    tracePropagationTargets: tracePropagationTargets,
+    replaysSessionSampleRate: 1.0,
+    replaysOnErrorSampleRate: 1.0,
+    enableLogs: true,
+  });
+}
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <ClerkProvider>
-      <SentryUserSync />
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
-          <Sentry.ErrorBoundary fallback={<SentryErrorFallback />}>
+          {sentryEnabled ? (
+            <Sentry.ErrorBoundary fallback={<SentryErrorFallback />}>
+              <SentryUserSync />
+              <App />
+            </Sentry.ErrorBoundary>
+          ) : (
             <App />
-          </Sentry.ErrorBoundary>
+          )}
         </BrowserRouter>
       </QueryClientProvider>
     </ClerkProvider>

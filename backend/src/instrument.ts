@@ -3,10 +3,11 @@ import * as Sentry from "@sentry/node";
 import { nodeProfilingIntegration } from "@sentry/profiling-node";
 
 const dsn = process.env.SENTRY_DSN;
+const sentryEnabled = process.env.NODE_ENV !== "development" && Boolean(dsn);
 
 // node profiling integration is for performance debugging in Sentry.
 
-if (dsn) {
+if (sentryEnabled) {
   Sentry.init({
     dsn,
     environment: process.env.NODE_ENV ?? "development",

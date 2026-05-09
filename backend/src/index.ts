@@ -11,7 +11,7 @@ import streamRouter from "./routes/streamRouter";
 import checkoutRouter from "./routes/checkoutRouter";
 import adminRouter from "./routes/adminRouter";
 import orderRouter from "./routes/orderRouter";
- import * as Sentry from "@sentry/node";
+import * as Sentry from "@sentry/node";
 
 import fs from "node:fs";
 import path from "node:path";
@@ -20,6 +20,7 @@ import { sentryClerkUserMiddleware } from "./middleware/sentryClerkUser";
 
 const env = getEnv();
 const app = express();
+const sentryEnabled = env.NODE_ENV !== "development" && Boolean(env.SENTRY_DSN);
 
 const rawJson = express.raw({
   type: "application/json",
@@ -39,7 +40,9 @@ app.post("/webhooks/polar", rawJson, (req, res) => {
 app.use(express.json());
 app.use(cors());
 app.use(clerkMiddleware());
-app.use(sentryClerkUserMiddleware);
+if (sentryEnabled) {
+  app.use(sentryClerkUserMiddleware);
+}
 
 app.get("/health", (_req, res) => {
   res.json({ ok: true });
@@ -72,7 +75,9 @@ if (fs.existsSync(publicDir)) {
 }
 
 // sentry will be attached to the res object
-Sentry.setupExpressErrorHandler(app);
+if (sentryEnabled) {
+  Sentry.setupExpressErrorHandler(app);
+}
 // ADD error handler middleware
 (app.use(
   (
