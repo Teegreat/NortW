@@ -138,7 +138,7 @@ export async function createCheckout(
       })
       .where(eq(checkoutSessions.id, session.id));
 
-    res.json({ chekoutUrl: checkout.url });
+    res.json({ checkoutUrl: checkout.url });
   } catch (e) {
     next(e);
   }
