@@ -254,6 +254,11 @@ export async function createVideoInvite(
       .where(eq(users.id, order.userId))
       .limit(1);
 
+    if (!owner) {
+      res.status(404).json({ error: "Order owner not found" });
+      return;
+    }
+
     const customerSid = streamUserId(owner.clerkUserId);
     await server.upsertUser({
       id: customerSid,
@@ -277,17 +282,18 @@ export async function createVideoInvite(
     });
 
     await channel.create();
-    await channel.addMembers([customerSid, staffStreamUserId]);
+    await channel.addMembers([customerSid, staffStreamUserId]).catch((error) => {
+      const status = (error as { response?: { status?: number } }).response?.status;
+      if (status !== 400 && status !== 409) throw error;
+    });
 
     const joinUrl = `${env.FRONTEND_URL.replace(/\/+$/, "")}/orders/${order.id}/call`;
 
     await channel.sendMessage({
       text: `Video call — tap Join below (same link for everyone): ${joinUrl}`,
       user_id: staffStreamUserId,
-      custom: {
-        video_invite: true,
-        join_url: joinUrl,
-      },
+      video_invite: true,
+      join_url: joinUrl,
     });
 
     res.json({ ok: true, joinUrl });

@@ -61,6 +61,7 @@ export async function createStreamToken(
       token,
       apiKey: env.STREAM_API_KEY,
       userId: sid,
+      name
     });
   } catch (error) {
     next(error);
